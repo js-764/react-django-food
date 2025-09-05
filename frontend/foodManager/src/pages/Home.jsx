@@ -1,5 +1,6 @@
 import '../css/Home.css'
 import { useState, useEffect } from 'react'
+import UpdateFoodModal from '../components/UpdateFoodModal'
 
 
 function Home() {
@@ -76,11 +77,48 @@ function Home() {
                 })
             //after receiving the json data,
             const data = await respose.json()
-            //update foods --> triggers rerender
+            //updates foods --> triggers rerender
             setFoods((f) => [...f, data])
             } catch(err) {
                 console.error(err)
             }
+        }
+    }
+
+    // to delete selected food
+    const deleteFood = async (pk) => {
+        try {
+            const response = await fetch(`http://127.0.0.1:8000/api/foods/${pk}/`, {
+                method: "DELETE"
+            })
+
+            //for the previous array of foods, go through every food in this array and filter out the food with the same id as the pk
+            //updates foods --> triggers rerender
+            setFoods((f) => f.filter((food) => food.id !== pk))
+
+        } catch(err) {
+            console.error(err)
+        }
+    }
+
+    // variable to identify which fountain is being updated
+    const [selectedFoodItem, setSelectedFoodItem] = useState("")
+
+    // variable to keep track of modal's visability
+    const [showModal, setShowModal] = useState(false)
+
+
+    // When the user clicks on the "update" button in the table, open the modal
+    function openModal() {
+        if (!showModal) {
+            setShowModal(true)
+        }
+    }
+
+    //If the user clicks the x button when the modal is open, close the modal
+    function closeModal() {
+        if (showModal) {
+            setShowModal(false)
         }
     }
 
@@ -151,8 +189,14 @@ function Home() {
                                 <td>{food.count}</td>
                                 <td>{food.price}</td>
                                 <td>
-                                    <button>Edit</button>
-                                    <button>Delete</button>
+                                    <button onClick={() => {
+                                        setSelectedFoodItem(food);
+                                        openModal()
+                                    }}>Edit</button>
+
+                                    <button onClick={() =>
+                                        deleteFood(food.id)}
+                                    >Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -169,6 +213,21 @@ function Home() {
                 <div className="pantryList"></div>
             </div>
         </div>
+
+        {/* If showModal is true, return the modal */}
+        {showModal && (
+            <UpdateFoodModal
+                food={selectedFoodItem}
+                closeModal={() => setShowModal(false)}
+                fetchFoods={() => fetchFoods()}
+                foodName={foodName}
+                foodCategory={foodCategory}
+                foodDate={foodDate}
+                foodCount={foodCount}
+                foodPrice={foodPrice}
+                foods={foods}
+            />
+        )}
     </>)
 }
 
