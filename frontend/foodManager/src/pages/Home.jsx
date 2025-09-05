@@ -19,18 +19,20 @@ function Home() {
         }
     }
 
-    //setup the date and get the food array
+    //setup the date and get the food array,
+    //Always rerender whenever the lists change in some way
     useEffect(()=>{
         fetchFoods()
 
         const d = new Date();
         setDefaultDate(d.toLocaleDateString('en-CA'))
+        setFoodDate(d.toLocaleDateString('en-CA'))
     },[foods])
 
     //For filling out the form to add a new food item
     const [foodName, setFoodName] = useState("")
-    const [foodCategory, setFoodCategory] = useState("")
-    const [foodDate, setFoodDate] = useState(defaultDate)
+    const [foodCategory, setFoodCategory] = useState("meats") //Topmost category item to ensure category has a value
+    const [foodDate, setFoodDate] = useState()
     const [foodCount, setFoodCount] = useState(1)
     const [foodPrice, setFoodPrice] = useState(0.00)
 
@@ -52,13 +54,34 @@ function Home() {
     }
 
     // To add new food
-    function handleAddFood(event) {
-        event.preventDefault()
+    const handleAddFood = async () => {
+        //As long as there is a name entered for the food, add the food to the grocery list
+        if (!foodName.trim().length==0) {
+            //get the values from the grocery item-adding form
+            const foodData = {
+                name: foodName,
+                category: foodCategory,
+                expiration_date: foodDate,
+                count: foodCount,
+                price: foodPrice
+            }
 
-        
-
-        //Then, reload the page
-        fetchFoods()
+            try {
+                const response = await fetch("http://127.0.0.1:8000/api/foods/create/", {
+                    method: "POST",
+                    headers: {
+                        'Content-Type':'application/json',
+                    },
+                    body: JSON.stringify(foodData)
+                })
+            //after receiving the json data,
+            const data = await respose.json()
+            //update foods --> triggers rerender
+            setFoods((f) => [...f, data])
+            } catch(err) {
+                console.error(err)
+            }
+        }
     }
 
 
@@ -73,11 +96,11 @@ function Home() {
                 <div className="grocery-add-section">
                     <form onSubmit={handleAddFood}>
                         {/* Food Name */}
-                        <label for="foodname">Name:</label>
+                        <label htmlFor="foodname">Name:</label>
                         <input type="text" name="foodname" onChange={handleNameChange} placeholder='Enter item name...'></input>
-                        
+
                         {/* Food Category */}
-                        <label for="foodtype"> Category:</label>
+                        <label htmlFor="foodtype"> Category:</label>
                         <select name="foodtype" onChange={handleCategoryChange}>
                             <option>meats</option>
                             <option>dairy</option>
@@ -92,15 +115,15 @@ function Home() {
                         </select><br />
                         
                         {/* Food Expiration Date */}
-                        <label for="fooddate"> Expiration date:</label>
+                        <label htmlFor="fooddate"> Expiration date:</label>
                         <input type="date" name="fooddate" onChange={handleDateChange} defaultValue={defaultDate}></input>
 
                         {/* Amount of Food */}
-                        <label for="foodcount"> Item count:</label>
+                        <label htmlFor="foodcount"> Item count:</label>
                         <input type="number" name="foodcount" onChange={handleCountChange} defaultValue={foodCount} min="1" max="10"></input><br />
                         
                         {/* Food Price */}
-                        <label for="">Price:</label>
+                        <label htmlFor="">Price:</label>
                         <input type="number" name="foodcost" onChange={handlePriceChange} defaultValue={foodPrice} min="0.00" max="200.00" step="0.01"></input>
 
                         <button type="submit">Add Grocery Item</button>
@@ -110,7 +133,6 @@ function Home() {
                 {/* Table under the "add" section of the groceries */}
                 <div className="groceryList">
                     <table>
-
                         <tr> {/* The Table Headers */}
                             <th>Name</th>
                             <th>Category</th>
@@ -122,7 +144,7 @@ function Home() {
 
                         {/* For every grocery item, display its info in table */}
                         {foods.map((food, index) => (
-                            <tr>
+                            <tr key={index}>
                                 <td>{food.name}</td>
                                 <td>{food.category}</td>
                                 <td>{food.expiration_date}</td>

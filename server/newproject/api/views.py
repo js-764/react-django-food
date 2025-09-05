@@ -18,3 +18,17 @@ def create_food(request):
         serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.error, status=status.HTTP_400_BAD_REQUEST)
+
+@api_view((['PUT', 'DELETE']))
+def food_detail(request, pk):
+    try:
+        food = foodItem.objects.get(pk=pk)
+    except foodItem.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    if request.method == 'DELETE':
+        food.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    # elif request.method == 'PUT':
+        
