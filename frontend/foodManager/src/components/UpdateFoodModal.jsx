@@ -1,6 +1,7 @@
 import {useState, useEffect} from 'react'
 import "../css/UpdateFoodModal.css"
 
+//import all the stuff from Home.jsx
 function UpdateFoodModal({food,closeModal,
                           fetchFoods,handleNameChange,
                           handleCategoryChange,
@@ -30,9 +31,10 @@ function UpdateFoodModal({food,closeModal,
                     body: JSON.stringify(foodData)
                 })
             
+                //for every grocery food item in "Foods," see if the id of "Foods"'s said grocery item matches with whatever particular fruit in THIS component's id is :D
                 setFoods((f) => f.map((groceryFood) => {
                     if (groceryFood.id===food.id) {
-                        console.log(foodData)
+                        // changes foods array from Home.jsx --> triggers rerender(?)
                         return foodData
                     } else {
                         return foods
@@ -47,6 +49,7 @@ function UpdateFoodModal({food,closeModal,
         }
     }
 
+    // In case users don't make any changes to a field, ensure all fields have a value right off the bat
     useEffect(() => {
         setFoodName(food.name)
         setFoodCategory(food.category)
