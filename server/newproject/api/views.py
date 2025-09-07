@@ -32,7 +32,7 @@ def food_detail(request, pk):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     elif request.method == 'PUT':
-        data = request.dada
+        data = request.data
         serializer = FoodItemSerializer(food, data=data)
         if serializer.is_valid():
             serializer.save()

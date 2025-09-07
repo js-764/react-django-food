@@ -51,6 +51,11 @@ input{
     overflow:auto;
   }
 
+    .pantryList{
+    height: 40%;
+    overflow:auto;
+  }
+
   h1{
     margin-top:2px;
   }
@@ -67,11 +72,21 @@ input{
   flex-direction:column;
 
 }
+
 #pantry-side{
     background-color: rgb(192, 180, 205);
+    display: flex;
+  align-items: center;
+  flex-direction:column;
 }
 
 .groceryList {
+  max-height: 750px;
+  overflow:auto;
+  margin-bottom: 10px;
+}
+
+.pantryList {
   max-height: 750px;
   overflow:auto;
   margin-bottom: 10px;

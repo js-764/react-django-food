@@ -1,18 +1,17 @@
 import {useState, useEffect} from 'react'
 import "../css/UpdateFoodModal.css"
+import { configDotenv } from 'dotenv'
 
 //import all the stuff from Home.jsx
 function UpdateFoodModal({food,closeModal,
-                          fetchFoods,handleNameChange,
-                          handleCategoryChange,
-                          handleDateChange,
-                          handleCountChange,
-                          handlePriceChange, foods}) {
+                          setFoods, foods}) {
 
     // To update food
     const handleUpdateFood = async () => {
-        //As long as there is a name entered for the food, add the food to the grocery list
+        
+        // As long as there is a name entered for the food, add the food to the grocery list
         if (!foodName.trim().length==0) {
+            
             //get the values from the grocery item-adding form
             const foodData = {
                 name: foodName,
@@ -23,47 +22,51 @@ function UpdateFoodModal({food,closeModal,
             }
 
             try {
-                const response = await fetch(`http://127.0.0.1:8000/api/foods/:${food.id}`, {
+                const response = await fetch(`http://127.0.0.1:8000/api/foods/${food.id}/`, {
                     method: "PUT",
                     headers: {
                         'Content-Type':'application/json',
                     },
                     body: JSON.stringify(foodData)
                 })
+
+                const data = await response.json()
             
                 //for every grocery food item in "Foods," see if the id of "Foods"'s said grocery item matches with whatever particular fruit in THIS component's id is :D
                 setFoods((f) => f.map((groceryFood) => {
                     if (groceryFood.id===food.id) {
                         // changes foods array from Home.jsx --> triggers rerender(?)
-                        return foodData
+                        return data
                     } else {
-                        return foods
+                        return groceryFood
                     }
                 }))
 
-            //close modal, refetch the new fountain data
+            // close modal, refetch the new fountain data
 
             } catch(err) {
                 console.error(err)
             }
+            console.log("END")
         }
     }
-
-    // In case users don't make any changes to a field, ensure all fields have a value right off the bat
-    useEffect(() => {
-        setFoodName(food.name)
-        setFoodCategory(food.category)
-        setFoodDate(food.date)
-        setFoodCount(food.count)
-        setFoodPrice(food.price)
-    },[])
-
     //For filling out the form to add a new food item
     const [foodName, setFoodName] = useState("")
     const [foodCategory, setFoodCategory] = useState("") //Topmost category item to ensure category has a value
     const [foodDate, setFoodDate] = useState()
     const [foodCount, setFoodCount] = useState()
     const [foodPrice, setFoodPrice] = useState()
+
+    // In case users don't make any changes to a field, ensure all fields have a value right off the bat
+    useEffect(() => {
+        setFoodName(food.name)
+        setFoodCategory(food.category)
+        setFoodDate(food.expiration_date)
+        setFoodCount(food.count)
+        setFoodPrice(food.price)
+    },[])
+
+    
 
     //All for when users are adding food info
     function handleNameChange(event) {
@@ -89,7 +92,7 @@ function UpdateFoodModal({food,closeModal,
                 
                 <span className="close" onClick={closeModal}>&times;</span> {/* Onclick function here to close modal (&times; is an x) */}
 
-                <form>
+                <form onSubmit={handleUpdateFood}>
                     {/* Food Name */}
                     <label htmlFor="foodname">Name:</label>
                     <input type="text" name="foodname" defaultValue={food.name} onChange={handleNameChange} placeholder='Enter item name...'></input>
@@ -113,6 +116,7 @@ function UpdateFoodModal({food,closeModal,
                     <label htmlFor="fooddate"> Expiration date:</label>
                     <input type="date" name="fooddate" defaultValue={food.expiration_date} onChange={handleDateChange}></input>
 
+
                     {/* Amount of Food */}
                     <label htmlFor="foodcount"> Item count:</label>
                     <input type="number" name="foodcount" defaultValue={food.count} onChange={handleCountChange} min="1" max="10"></input><br />
@@ -121,7 +125,7 @@ function UpdateFoodModal({food,closeModal,
                     <label htmlFor="">Price:</label>
                     <input type="number" name="foodcost" defaultValue={food.price} onChange={handlePriceChange} min="0.00" max="200.00" step="0.01"></input>
 
-                    <button type="submit" onClick={handleUpdateFood}>Update Grocery Item</button>
+                    <button type="submit">Update Grocery Item</button>
                 </form>
             </div>
         </div>
