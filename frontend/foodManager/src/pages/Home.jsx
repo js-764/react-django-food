@@ -8,8 +8,11 @@ function Home() {
     //For the array with ALL the foods
     const [foods, setFoods] = useState([])
 
+    //For sorting the pantry foods
+    const [sortedFoods, setSortedFoods] = useState([])
+
     //To prepare to set the default date of a grocery item
-    const [defaultDate, setDefaultDate] = useState()
+    const [defaultDate, setDefaultDate] = useState([])
 
 
     //function to get the food
@@ -18,6 +21,7 @@ function Home() {
             const response = await fetch("http://127.0.0.1:8000/api/foods/")
             const data = await response.json()
             setFoods(data)
+            setSortedFoods(data.filter((f)=> f.is_in_pantry == true))
         } catch (err) {
             console.log(err)
         }
@@ -101,6 +105,7 @@ function Home() {
             //for the previous array of foods, go through every food in that array and filter out the food with the same id as this pk
             //deletes that matching food in the website array
             setFoods((f) => f.filter((food) => food.id !== pk))
+            fetchFoods()
 
         } catch(err) {
             console.error(err)
@@ -127,6 +132,8 @@ function Home() {
                 console.error(err)
             }
         })
+
+        setSortedFoods((f) => f.filter((foods) => foods.category==="helpme"))
     }
 
     // variable to determine which grocery food will be updated in the update-modal
@@ -177,7 +184,9 @@ function Home() {
 
                 //with the data,
                 const data = await response.json()
+
             
+                setSortedFoods((f) => [...f, data])
                 //for every grocery food item in "Foods," see if the id of "Foods"'s said grocery item matches with whatever particular fruit in THIS component's id is :D
                 setFoods((f) => f.map((groceryFood) => {
                     if (groceryFood.id===food.id) {
@@ -193,10 +202,12 @@ function Home() {
             }
             console.log("END")
         })
+
     }
 
     //function to decrease the count of items in the pantry list
     const decreaseCount = async (food) => {
+
         //get the values from the particular food forrrr the particular food
             const foodData = {
                 name: food.name,
@@ -219,9 +230,11 @@ function Home() {
 
                 const data = await response.json()
             
+                console.log("this was reached")
                 //for every grocery food item in "Foods," see if the id of "Foods"'s said grocery item matches with whatever particular fruit in THIS component's id is :D
                 setFoods((f) => f.map((groceryFood) => {
                     if (groceryFood.id===food.id) {
+                        fetchFoods()
                         return data
                     } else {
                         return groceryFood
@@ -233,6 +246,70 @@ function Home() {
             }
             console.log("END")
     }
+
+    //Sort foods by name a-z
+    function nameA2Z(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return a.name.localeCompare(b.name)}
+        )
+    )}
+
+    //Sort foods by name z-a
+    function nameZ2A(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return b.name.localeCompare(a.name)}
+        )
+    )}
+
+    //Sort foods by category a-z
+    function categoryA2Z(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return a.category.localeCompare(b.category)}
+        )
+    )}
+
+    //Sort foods by category z-a
+    function categoryZ2A(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return b.category.localeCompare(a.category)}
+        )
+    )}
+
+    //Sort foods by date lowest to highest
+    function dateAscending(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return new Date(a.expiration_date).getTime() - new Date(b.expiration_date).getTime()}
+        )
+    )}
+
+    //Sort foods by date highest to lowest
+    function dateDescending(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return new Date(b.expiration_date).getTime() - new Date(a.expiration_date).getTime()}
+        )
+    )}
+    
+    //Sort foods by count lowest to highest
+    function countAscending(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return a.count - b.count}
+        )
+    )}
+
+    //Sort foods by count highest to lowest
+    function countDescending(foods) {
+        setSortedFoods(
+            foods.sort(function(a,b) {
+            return b.count - a.count}
+        )
+    )}
 
 
     return(<>
@@ -276,41 +353,43 @@ function Home() {
                         <label htmlFor="">Price:</label>
                         <input type="number" name="foodcost" onChange={handlePriceChange} defaultValue={foodPrice} min="0.00" max="200.00" step="0.01"></input>
 
-                        <button type="submit">Add Grocery Item</button>
+                        <button type="submit" className='grocerySubmit'>Add Grocery Item</button>
                     </form>
                 </div>
                 
                 {/* Table under the "add" section of the groceries */}
                 <div className="groceryList">
-                    <table>
-                        <tr> {/* The Table Headers */}
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Expiration Date</th>
-                            <th>Count</th>
-                            <th>Price</th>
-                            <th>Update/Delete</th>
+                    <table className='groceryTable'>
+                        <tr className='groceryRow'> {/* The Table Headers */}
+                            <th className='groceryHeader'>Name</th>
+                            <th className='groceryHeader'>Category</th>
+                            <th className='groceryHeader'>Expiration Date</th>
+                            <th className='groceryHeader'>Count</th>
+                            <th className='groceryHeader'>Price</th>
+                            <th className='groceryHeader'>Update/Delete</th>
                         </tr>
 
                         {/* For every grocery item (confirm it isn't a pantry item with ".filter()"), display its info in table */}
                         {foods.filter((f)=> f.is_in_pantry == false).map((food, index) => (
-                            <tr key={index}>
-                                <td>{food.name}</td>
-                                <td>{food.category}</td>
-                                <td>{food.expiration_date}</td>
-                                <td>{food.count}</td>
-                                <td>{food.price}</td>
-                                <td>
+                            <tr className='groceryRow' key={index}>
+                                <td className='groceryTableItems'>{food.name}</td>
+                                <td className='groceryTableItems'>{food.category}</td>
+                                {/* If default dat (current day that the website is being used) is greater than this food's expiration date, make the background red */}
+                                {(food.expiration_date===defaultDate ||food.expiration_date<defaultDate) && <td className='groceryTableItems' style={{ color: 'black', backgroundColor: 'rgba(216, 185, 185, 1)' }}>{food.expiration_date}, (Expired)</td>}
+                                {(!(food.expiration_date===defaultDate) && !(food.expiration_date<defaultDate)) && <td className='groceryTableItems'>{food.expiration_date}</td>}
+                                <td className='groceryTableItems'>{food.count}</td>
+                                <td className='groceryTableItems'>{food.price}</td>
+                                <td className='groceryTableItems'>
                                     {/* Every food item row comes with an update and delete button */}
 
                                     <button onClick={() => {
                                         setSelectedFoodItem(food); //this is the grocery item we want to take to the update-modal
                                         openModal() //this function sets the modal's visibility to true
-                                    }}>Update</button>
+                                    }} className='changing'>Update</button>
 
                                     <button onClick={() =>
                                         deleteFood(food.id)}
-                                    >Delete</button>
+                                    className='deleting'>Delete</button>
                                 </td>
                             </tr>
                         ))}
@@ -320,10 +399,10 @@ function Home() {
                 {/* Under the grocery list, you can either clear the list or check the grocery items out to the pantry list */}
                 <div>
                     {/* Get all grocery items (confirm they're grocery items with ".filter()") and call the checkout function on the array of grocery items*/}
-                    <button onClick={() => moveToPantry(foods.filter((f)=> f.is_in_pantry == false))}>
+                    <button onClick={() => moveToPantry(foods.filter((f)=> f.is_in_pantry == false))} className='grocerySubmit'>
                         Checkout
                     </button>
-                    <button onClick={() => clearGroceryList(foods.filter((f)=> f.is_in_pantry == false))}>Clear Grocery List</button> {/* WIP */}
+                    <button onClick={() => clearGroceryList(foods.filter((f)=> f.is_in_pantry == false))} className='deleting'>Clear Grocery List</button>
                 </div>
             </div>
             
@@ -331,44 +410,65 @@ function Home() {
             {/* Pantry Side */}
             <div className="column" id="pantry-side">
                 <h1>Pantry List:</h1>
-                 {/* Table under the "add" section of the groceries */}
+
+                {/* Buttons to sort the table by a certain characteristics */}
+                <div className='sort-section'>
+                    {/* Sort by name */}
+                    <label htmlFor='sort'>Sort by name:</label><button className='pantrySubmit' onClick={() => nameA2Z(foods.filter((f)=> f.is_in_pantry == true))} name="sort">a-z</button><button className='pantrySubmit' onClick={() => nameZ2A(foods.filter((f)=> f.is_in_pantry == true))} name="sort">z-a</button>
+
+                    {/* Sort by catrgory */}
+                    <label htmlFor='sort'>Sort by category:</label><button className='pantrySubmit' onClick={() => categoryA2Z(foods.filter((f)=> f.is_in_pantry == true))} name="sort">a-z</button><button className='pantrySubmit' onClick={() => categoryZ2A(foods.filter((f)=> f.is_in_pantry == true))} name="sort">z-a</button><br />
+
+                    {/* Sort by date */}
+                    <label htmlFor='sort'>Sort by expiration date:</label><button className='pantrySubmit' onClick={() => dateAscending(foods.filter((f)=> f.is_in_pantry == true))} name="sort">ascending</button><button className='pantrySubmit' onClick={() => dateDescending(foods.filter((f)=> f.is_in_pantry == true))} name="sort">descending</button>
+
+                    {/* Sort by count */}
+                    <label htmlFor='sort'>Sort by count:</label><button className='pantrySubmit' onClick={() => countAscending(foods.filter((f)=> f.is_in_pantry == true))} name="sort">highest to lowest</button><button className='pantrySubmit' onClick={() => countDescending(foods.filter((f)=> f.is_in_pantry == true))} name="sort">lowest to highest</button>
+                </div>
+
+                {/* Table where the pantry list is */}
                 <div className="pantryList">
-                    <table>
-                        <tr> {/* The Table Headers */}
-                            <th>Name</th>
-                            <th>Category</th>
-                            <th>Count</th>
-                            <th>Expiration Date</th>
-                            <th>Decrease/Delete</th>
+                    <table className='pantryTable'>
+                        <tr className='pantryRow'> {/* The Table Headers */}
+                            <th className='pantryHeader'>Name</th>
+                            <th className='pantryHeader'>Category</th>
+                            <th className='pantryHeader'>Count</th>
+                            <th className='pantryHeader'>Expiration Date</th>
+                            <th className='pantryHeader'>Decrease/Delete</th>
                         </tr>
 
-                        {/* For every pantry item (confirm with filter method) that has a count>0, display its info in table */}
-                        {foods.filter((f)=> f.is_in_pantry == true && f.count>0).map((food, index) => (
+                        {/* For every pantry item, display its info in table */}
+                        {/* "sortedFoods is used here instead of "foods" because sorted foods will be changing around a lot with the sorting buttons */}
+                        {sortedFoods.map((food, index) => (
                                  
-                            <tr key={index}>
-                                <td>{food.name}</td>
-                                <td>{food.category}</td>
-                                <td>{food.count}</td>
-                                <td>{food.expiration_date}</td>
-
-                                <td> {/* Every pantry item has the option to decrease its count or delete the item */}
+                            <tr className='pantryRow' key={index}>
+                                <td className='pantryTableItem'>{food.name}</td>
+                                <td className='pantryTableItem'>{food.category}</td>
+                                <td className='pantryTableItem'>{food.count}</td>
+                                {/* If default date (current day that the website is being used) is greater than this food's expiration date, make the background red */}
+                                {(food.expiration_date===defaultDate ||food.expiration_date<defaultDate) && <td className='pantryTableItem' style={{ color: 'black', backgroundColor: 'rgba(216, 185, 185, 1)' }}>{food.expiration_date}, (Expired)</td>}
+                                {(!(food.expiration_date===defaultDate) && !(food.expiration_date<defaultDate)) && <td className='pantryTableItem'>{food.expiration_date}</td>}
+                                
+                                <td className='pantryTableItem'> {/* Every pantry item has the option to decrease its count or delete the item */}
                                     {/* If the count > 1, decrease count, but if the count is already 0, might as well just delete the item */}
                                     <button onClick={() => {
                                         if (food.count===1) {
                                             deleteFood(food.id)
                                         } else {decreaseCount(food)}
-                                    }}>Decrease Count</button>
+                                    }}className='changing'>Decrease Count</button>
 
                                     <button onClick={() =>
                                         deleteFood(food.id)}
-                                    >Delete</button>
+                                    className='deleting'>Delete</button>
                                 </td>
                             </tr>
                             
                         ))}
 
                     </table>
+                    
                 </div>
+                <button onClick={() => clearGroceryList(foods.filter((f)=> f.is_in_pantry == true))} className='deleting'>Clear Pantry List</button>
             </div>
         </div>
 

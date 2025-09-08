@@ -28,6 +28,16 @@ input{
     margin-bottom: 15px;
 }
 
+.sort-section {
+    background-color: rgb(160, 148, 172);
+    padding: 10px 10px;
+    position: relative;
+    width:85%;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    color:white;
+}
+
 .column {
   float: left;
   width: 50%;
@@ -62,7 +72,6 @@ input{
 }
 
 *{
-    color:black;
 }
 
 #grocery-side{
@@ -92,28 +101,67 @@ input{
   margin-bottom: 10px;
 }
 
-table, th, td {
+.groceryTable, .groceryHeader, .groceryTableItems {
   border:1px solid rgb(175, 158, 124);
 }
 
 table {
-  background-color: rgb(175, 158, 124);
   border-collapse: collapse;
   border-width:70%;
   overflow: scroll;
 }
 
-th {
+.groceryHeader {
   background-color: rgb(175, 158, 124);
   color:white;
-
 }
 
-tr{
+.groceryRow{
   background-color: rgb(255, 252, 247);
-  
+}
+
+.pantryHeader {
+  background-color: rgb(146, 127, 152);
+  color:white;
+}
+
+.pantryRow{
+  background-color: rgb(255, 247, 255);
+}
+
+.pantryTable, .pantryHeader, .pantryTableItem {
+  border:1px solid rgb(146, 127, 152);
 }
 
 th, td {
 padding:10px;
+}
+
+button{
+  border:none;
+  border-radius: 2px;
+  padding: 2px;
+}
+
+.grocerySubmit {
+  background-color: rgb(148, 176, 83);
+  color:white;
+  margin-left: 5px;
+}
+
+.pantrySubmit {
+  background-color: rgb(131, 112, 141);
+  color:white;
+  margin-bottom: 6px;
+  margin-left: 3px;
+}
+
+.changing {
+  background-color: rgb(237, 236, 191);
+}
+
+.deleting {
+  background-color: rgb(199, 116, 116);
+  color:white;
+  margin-left: 5px;
 }
