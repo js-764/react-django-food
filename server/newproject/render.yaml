@@ -3,7 +3,7 @@ services:
     name: django-backend
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: cd server/newproject && gunicorn newproject.wsgi
+    startCommand: gunicorn server.newproject.newproject.wsgi
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
