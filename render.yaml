@@ -10,3 +10,5 @@ services:
         generateValue: true
       - key: DEBUG
         value: "True"
+      - key: DJANGO_SETTINGS_MODULE
+        value: newproject.newproject.settings
