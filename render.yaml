@@ -3,7 +3,7 @@ services:
     name: django-backend
     env: python
     workingDir: server
-    buildCommand: ls -R
+    buildCommand: pip install -r requirements.txt
     startCommand: gunicorn newproject.newproject.wsgi:application
     envVars:
       - key: DJANGO_SECRET_KEY
