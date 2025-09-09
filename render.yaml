@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: django-backend
+    env: python
+    workingDir: server
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn newproject.wsgi:application
+    envVars:
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "True"
