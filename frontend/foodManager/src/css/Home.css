@@ -71,9 +71,6 @@ input{
   }
 }
 
-*{
-}
-
 #grocery-side{
     background-color: rgb(245, 234, 211);
   display: flex;

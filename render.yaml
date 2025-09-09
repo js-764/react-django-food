@@ -2,10 +2,9 @@ services:
   - type: web
     name: django-backend
     env: python
-    rootDir: server
+    rootDir: server/newproject
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn newproject.newproject.wsgi:application
-    preDeployCommand: python manage.py migrate
     envVars:
       - key: DJANGO_SECRET_KEY
         generateValue: true
